@@ -8,7 +8,7 @@ class PoseToCSV(Node):
     def __init__(self):
         super().__init__('pose_to_csv')
         # VSLAM usually publishes to /rtabmap/localization_pose or similar
-        self.sub = self.create_subscription(PoseStamped, '/orbslam/pose', self.callback, 10)
+        self.sub = self.create_subscription(PoseStamped, '/odom', self.callback, 10)
         self.file_path = os.path.expanduser('~/track_data.csv')
         self.file = open(self.file_path, 'w')
         self.writer = csv.writer(self.file)

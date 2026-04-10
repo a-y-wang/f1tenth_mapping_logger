@@ -4,30 +4,36 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # 1. Start the AR0234 USB Camera
+
+        # Camera
         Node(
             package='v4l2_camera',
             executable='v4l2_camera_node',
             name='camera_node',
             parameters=[{
                 'video_device': '/dev/video0',
-                'image_size': [640, 480], # Your 2MP Resolution
-                'pixel_format': 'MJPG',     # Required for 90fps
+                'image_size': [640, 480],
             }]
         ),
 
-        # 2. Start ORB-SLAM and PIPE it into Andy's Bridge
-        # change momo_live to whatever VSLAM executable you are using
+        # ORB-SLAM + bridge
         ExecuteProcess(
-            cmd=['./mono_live | ros2 run orbslam_bridge bridge_node'],
+            cmd=[
+                'bash', '-c',
+                '/home/ubuntu/ros2_ws/src/ORB_SLAM3/Examples/Monocular/mono_live '
+                '/home/ubuntu/ros2_ws/src/ORB_SLAM3/Vocabulary/ORBvoc.txt '
+                '/home/ubuntu/ros2_ws/src/ORB_SLAM3/Examples/Monocular/camera_fast.yaml '
+                '| ros2 run orbslam_bridge bridge_node '
+                '--ros-args -r /orbslam/pose:=/odom'
+            ],
             shell=True
         ),
 
-
-        # 3. Start YOUR Logger Node
-        Node(
-            package='mapping_logger',
-            executable='logger_node', # The name defined in setup.py
-            name='csv_logger'
+        # Logger
+        ExecuteProcess(
+            cmd=[
+                'python3',
+                '/home/ubuntu/ros2_ws/src/orbslam_bridge/scripts/pose_to_csv.py'
+            ]
         )
     ])
