@@ -22,6 +22,15 @@ class PoseToCSV(Node):
 def main():
     rclpy.init()
     node = PoseToCSV()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+
     node.file.close()
     rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
